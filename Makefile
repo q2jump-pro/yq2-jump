@@ -402,7 +402,7 @@ endif
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft
+all: config client game ref_gl1 ref_gl3 ref_gles3 ref_soft
 
 # ----------
 
@@ -916,6 +916,7 @@ CLIENT_OBJS_ := \
 	src/client/cl_parse.o \
 	src/client/cl_particles.o \
 	src/client/cl_prediction.o \
+	src/client/strafe_helper/strafe_helper.o \
 	src/client/cl_screen.o \
 	src/client/cl_tempentities.o \
 	src/client/cl_view.o \

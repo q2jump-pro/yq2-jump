@@ -30,9 +30,11 @@
 #define CO_COMMON_H
 
 #include "shared.h"
+
 #include "crc.h"
 
 #define YQ2VERSION "8.42pre"
+#define YQ2JUMPVERSION "0.1(yq2-" YQ2VERSION ")"
 #define BASEDIRNAME "baseq2"
 
 #ifndef YQ2OSTYPE
@@ -44,62 +46,63 @@
 #endif
 
 #ifdef _WIN32
- #define CFGDIR "YamagiQ2"
+#define CFGDIR "YamagiQ2"
 #else
- #ifndef __HAIKU__
-   #define CFGDIR ".yq2"
- #else
-   #define CFGDIR "yq2"
- #endif
+#ifndef __HAIKU__
+#define CFGDIR ".yq2"
+#else
+#define CFGDIR "yq2"
+#endif
 #endif
 
 #ifndef YQ2ARCH
-  #ifdef _MSC_VER
-    // Setting YQ2ARCH for VisualC++ from CMake doesn't work when using VS integrated CMake
-    // so set it in code instead
-    #ifdef YQ2ARCH
-      #undef YQ2ARCH
-    #endif
-    #ifdef _M_X64
-      // this matches AMD64 and ARM64EC (but not regular ARM64), but they're supposed to be binary-compatible somehow, so whatever
-      #define YQ2ARCH "x86_64"
-    #elif defined(_M_ARM64)
-      #define YQ2ARCH "arm64"
-    #elif defined(_M_ARM)
-      #define YQ2ARCH "arm"
-    #elif defined(_M_IX86)
-      #define YQ2ARCH "x86"
-    #else
-      // if you're not targeting one of the aforementioned architectures,
-      // check https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-      // to find out how to detect yours and add it here - and please send a patch :)
-      #error "Unknown CPU architecture!"
-      // (for a quick and dirty solution, comment out the previous line, but keep in mind
-      //  that savegames may not be compatible with other builds of Yamagi Quake II)
-      #define YQ2ARCH "UNKNOWN"
-    #endif // _M_X64 etc
-  #else // other compilers than MSVC
-    #error YQ2ARCH should be defined by the build system
-  #endif // _MSC_VER
+#ifdef _MSC_VER
+// Setting YQ2ARCH for VisualC++ from CMake doesn't work when using VS
+// integrated CMake so set it in code instead
+#ifdef YQ2ARCH
+#undef YQ2ARCH
+#endif
+#ifdef _M_X64
+// this matches AMD64 and ARM64EC (but not regular ARM64), but they're supposed
+// to be binary-compatible somehow, so whatever
+#define YQ2ARCH "x86_64"
+#elif defined(_M_ARM64)
+#define YQ2ARCH "arm64"
+#elif defined(_M_ARM)
+#define YQ2ARCH "arm"
+#elif defined(_M_IX86)
+#define YQ2ARCH "x86"
+#else
+// if you're not targeting one of the aforementioned architectures,
+// check https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+// to find out how to detect yours and add it here - and please send a patch :)
+#error "Unknown CPU architecture!"
+// (for a quick and dirty solution, comment out the previous line, but keep in
+// mind
+//  that savegames may not be compatible with other builds of Yamagi Quake II)
+#define YQ2ARCH "UNKNOWN"
+#endif // _M_X64 etc
+#else  // other compilers than MSVC
+#error YQ2ARCH should be defined by the build system
+#endif // _MSC_VER
 #endif // YQ2ARCH
 
 /* ================================================================== */
 
-typedef struct sizebuf_s
-{
-	qboolean allowoverflow;     /* if false, do a Com_Error */
-	qboolean overflowed;        /* set to true if the buffer size failed */
-	byte *data;
-	int maxsize;
-	int cursize;
-	int readcount;
+typedef struct sizebuf_s {
+  qboolean allowoverflow; /* if false, do a Com_Error */
+  qboolean overflowed;    /* set to true if the buffer size failed */
+  byte *data;
+  int maxsize;
+  int cursize;
+  int readcount;
 } sizebuf_t;
 
 void SZ_Init(sizebuf_t *buf, byte *data, int length);
 void SZ_Clear(sizebuf_t *buf);
 void *SZ_GetSpace(sizebuf_t *buf, int length);
 void SZ_Write(sizebuf_t *buf, void *data, int length);
-void SZ_Print(sizebuf_t *buf, char *data);  /* strcats onto the sizebuf */
+void SZ_Print(sizebuf_t *buf, char *data); /* strcats onto the sizebuf */
 
 /* ================================================================== */
 
@@ -117,10 +120,10 @@ void MSG_WritePos(sizebuf_t *sb, vec3_t pos);
 void MSG_WriteAngle(sizebuf_t *sb, float f);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
 void MSG_WriteDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
-		struct usercmd_s *cmd);
+                           struct usercmd_s *cmd);
 void MSG_WriteDeltaEntity(struct entity_state_s *from,
-		struct entity_state_s *to, sizebuf_t *msg,
-		qboolean force, qboolean newentity);
+                          struct entity_state_s *to, sizebuf_t *msg,
+                          qboolean force, qboolean newentity);
 void MSG_WriteDir(sizebuf_t *sb, vec3_t vector);
 
 void MSG_BeginReading(sizebuf_t *sb);
@@ -137,9 +140,8 @@ float MSG_ReadCoord(sizebuf_t *sb);
 void MSG_ReadPos(sizebuf_t *sb, vec3_t pos);
 float MSG_ReadAngle(sizebuf_t *sb);
 float MSG_ReadAngle16(sizebuf_t *sb);
-void MSG_ReadDeltaUsercmd(sizebuf_t *sb,
-		struct usercmd_s *from,
-		struct usercmd_s *cmd);
+void MSG_ReadDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
+                          struct usercmd_s *cmd);
 
 void MSG_ReadDir(sizebuf_t *sb, vec3_t vector);
 
@@ -159,7 +161,7 @@ extern float LittleFloat(float l);
 /* ================================================================== */
 
 int COM_Argc(void);
-char *COM_Argv(int arg);    /* range and null checked */
+char *COM_Argv(int arg); /* range and null checked */
 void COM_ClearArgv(int arg);
 int COM_CheckParm(char *parm);
 void COM_AddParm(char *parm);
@@ -185,49 +187,48 @@ void Info_Print(char *s);
 
 /* ========================================= */
 
-#define UPDATE_BACKUP 16    /* copies of entity_state_t to keep buffered */
+#define UPDATE_BACKUP 16 /* copies of entity_state_t to keep buffered */
 #define UPDATE_MASK (UPDATE_BACKUP - 1)
 
 /* server to client */
-enum svc_ops_e
-{
-	svc_bad,
+enum svc_ops_e {
+  svc_bad,
 
-	/* these ops are known to the game dll */
-	svc_muzzleflash,
-	svc_muzzleflash2,
-	svc_temp_entity,
-	svc_layout,
-	svc_inventory,
+  /* these ops are known to the game dll */
+  svc_muzzleflash,
+  svc_muzzleflash2,
+  svc_temp_entity,
+  svc_layout,
+  svc_inventory,
 
-	/* the rest are private to the client and server */
-	svc_nop,
-	svc_disconnect,
-	svc_reconnect,
-	svc_sound,                  /* <see code> */
-	svc_print,                  /* [byte] id [string] null terminated string */
-	svc_stufftext,              /* [string] stuffed into client's console buffer, should be \n terminated */
-	svc_serverdata,             /* [long] protocol ... */
-	svc_configstring,           /* [short] [string] */
-	svc_spawnbaseline,
-	svc_centerprint,            /* [string] to put in center of the screen */
-	svc_download,               /* [short] size [size bytes] */
-	svc_playerinfo,             /* variable */
-	svc_packetentities,         /* [...] */
-	svc_deltapacketentities,    /* [...] */
-	svc_frame
+  /* the rest are private to the client and server */
+  svc_nop,
+  svc_disconnect,
+  svc_reconnect,
+  svc_sound,      /* <see code> */
+  svc_print,      /* [byte] id [string] null terminated string */
+  svc_stufftext,  /* [string] stuffed into client's console buffer, should be \n
+                     terminated */
+  svc_serverdata, /* [long] protocol ... */
+  svc_configstring, /* [short] [string] */
+  svc_spawnbaseline,
+  svc_centerprint,         /* [string] to put in center of the screen */
+  svc_download,            /* [short] size [size bytes] */
+  svc_playerinfo,          /* variable */
+  svc_packetentities,      /* [...] */
+  svc_deltapacketentities, /* [...] */
+  svc_frame
 };
 
 /* ============================================== */
 
 /* client to server */
-enum clc_ops_e
-{
-	clc_bad,
-	clc_nop,
-	clc_move,               /* [[usercmd_t] */
-	clc_userinfo,           /* [[userinfo string] */
-	clc_stringcmd           /* [string] message */
+enum clc_ops_e {
+  clc_bad,
+  clc_nop,
+  clc_move,     /* [[usercmd_t] */
+  clc_userinfo, /* [[userinfo string] */
+  clc_stringcmd /* [string] message */
 };
 
 /* ============================================== */
@@ -267,11 +268,11 @@ enum clc_ops_e
 /*============================================== */
 
 /* a sound without an ent or pos will be a local only sound */
-#define SND_VOLUME (1 << 0)         /* a byte */
-#define SND_ATTENUATION (1 << 1)      /* a byte */
-#define SND_POS (1 << 2)            /* three coordinates */
-#define SND_ENT (1 << 3)            /* a short 0-2: channel, 3-12: entity */
-#define SND_OFFSET (1 << 4)         /* a byte, msec offset from frame start */
+#define SND_VOLUME (1 << 0)      /* a byte */
+#define SND_ATTENUATION (1 << 1) /* a byte */
+#define SND_POS (1 << 2)         /* three coordinates */
+#define SND_ENT (1 << 3)         /* a short 0-2: channel, 3-12: entity */
+#define SND_OFFSET (1 << 4)      /* a byte, msec offset from frame start */
 
 #define DEFAULT_SOUND_PACKET_VOLUME 1.0
 #define DEFAULT_SOUND_PACKET_ATTENUATION 1.0
@@ -285,29 +286,29 @@ enum clc_ops_e
 #define U_ORIGIN2 (1 << 1)
 #define U_ANGLE2 (1 << 2)
 #define U_ANGLE3 (1 << 3)
-#define U_FRAME8 (1 << 4)       /* frame is a byte */
+#define U_FRAME8 (1 << 4) /* frame is a byte */
 #define U_EVENT (1 << 5)
-#define U_REMOVE (1 << 6)       /* REMOVE this entity, don't add it */
-#define U_MOREBITS1 (1 << 7)      /* read one additional byte */
+#define U_REMOVE (1 << 6)    /* REMOVE this entity, don't add it */
+#define U_MOREBITS1 (1 << 7) /* read one additional byte */
 
 /* second byte */
-#define U_NUMBER16 (1 << 8)      /* NUMBER8 is implicit if not set */
+#define U_NUMBER16 (1 << 8) /* NUMBER8 is implicit if not set */
 #define U_ORIGIN3 (1 << 9)
 #define U_ANGLE1 (1 << 10)
 #define U_MODEL (1 << 11)
-#define U_RENDERFX8 (1 << 12)     /* fullbright, etc */
-#define U_EFFECTS8 (1 << 14)     /* autorotate, trails, etc */
-#define U_MOREBITS2 (1 << 15)     /* read one additional byte */
+#define U_RENDERFX8 (1 << 12) /* fullbright, etc */
+#define U_EFFECTS8 (1 << 14)  /* autorotate, trails, etc */
+#define U_MOREBITS2 (1 << 15) /* read one additional byte */
 
 /* third byte */
 #define U_SKIN8 (1 << 16)
-#define U_FRAME16 (1 << 17)     /* frame is a short */
-#define U_RENDERFX16 (1 << 18)    /* 8 + 16 = 32 */
-#define U_EFFECTS16 (1 << 19)     /* 8 + 16 = 32 */
-#define U_MODEL2 (1 << 20)      /* weapons, flags, etc */
+#define U_FRAME16 (1 << 17)    /* frame is a short */
+#define U_RENDERFX16 (1 << 18) /* 8 + 16 = 32 */
+#define U_EFFECTS16 (1 << 19)  /* 8 + 16 = 32 */
+#define U_MODEL2 (1 << 20)     /* weapons, flags, etc */
 #define U_MODEL3 (1 << 21)
 #define U_MODEL4 (1 << 22)
-#define U_MOREBITS3 (1 << 23)     /* read one additional byte */
+#define U_MOREBITS3 (1 << 23) /* read one additional byte */
 
 /* fourth byte */
 #define U_OLDORIGIN (1 << 24)
@@ -329,9 +330,9 @@ enum clc_ops_e
  * ();
  */
 
-#define EXEC_NOW 0          /* don't return until completed */
-#define EXEC_INSERT 1       /* insert at current position, but don't run yet */
-#define EXEC_APPEND 2       /* add to end of the command buffer */
+#define EXEC_NOW 0    /* don't return until completed */
+#define EXEC_INSERT 1 /* insert at current position, but don't run yet */
+#define EXEC_APPEND 2 /* add to end of the command buffer */
 
 void Cbuf_Init(void);
 
@@ -515,30 +516,28 @@ extern qboolean userinfo_modified;
 /* NET */
 
 #define PORT_ANY -1
-#define MAX_MSGLEN 1400             /* max length of a message */
-#define PACKET_HEADER 10            /* two ints and a short */
+#define MAX_MSGLEN 1400  /* max length of a message */
+#define PACKET_HEADER 10 /* two ints and a short */
 
-typedef enum
-{
-	NA_LOOPBACK,
-	NA_BROADCAST,
-	NA_IP,
-	NA_IPX,
-	NA_BROADCAST_IPX,
-	NA_IP6,
-	NA_MULTICAST6
+typedef enum {
+  NA_LOOPBACK,
+  NA_BROADCAST,
+  NA_IP,
+  NA_IPX,
+  NA_BROADCAST_IPX,
+  NA_IP6,
+  NA_MULTICAST6
 } netadrtype_t;
 
-typedef enum {NS_CLIENT, NS_SERVER} netsrc_t;
+typedef enum { NS_CLIENT, NS_SERVER } netsrc_t;
 
-typedef struct
-{
-	netadrtype_t type;
-	byte ip[16];
-	unsigned int scope_id;
-	byte ipx[10];
+typedef struct {
+  netadrtype_t type;
+  byte ip[16];
+  unsigned int scope_id;
+  byte ipx[10];
 
-	unsigned short port;
+  unsigned short port;
 } netadr_t;
 
 void NET_Init(void);
@@ -547,7 +546,7 @@ void NET_Shutdown(void);
 void NET_Config(qboolean multiplayer);
 
 qboolean NET_GetPacket(netsrc_t sock, netadr_t *net_from,
-		sizebuf_t *net_message);
+                       sizebuf_t *net_message);
 void NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to);
 
 qboolean NET_CompareAdr(netadr_t a, netadr_t b);
@@ -562,38 +561,37 @@ void NET_Sleep(int msec);
 #define OLD_AVG 0.99
 #define MAX_LATENT 32
 
-typedef struct
-{
-	qboolean fatal_error;
+typedef struct {
+  qboolean fatal_error;
 
-	netsrc_t sock;
+  netsrc_t sock;
 
-	int dropped;                    /* between last packet and previous */
+  int dropped; /* between last packet and previous */
 
-	int last_received;              /* for timeouts */
-	int last_sent;                  /* for retransmits */
+  int last_received; /* for timeouts */
+  int last_sent;     /* for retransmits */
 
-	netadr_t remote_address;
-	int qport;                      /* qport value to write when transmitting */
+  netadr_t remote_address;
+  int qport; /* qport value to write when transmitting */
 
-	/* sequencing variables */
-	int incoming_sequence;
-	int incoming_acknowledged;
-	int incoming_reliable_acknowledged;         /* single bit */
+  /* sequencing variables */
+  int incoming_sequence;
+  int incoming_acknowledged;
+  int incoming_reliable_acknowledged; /* single bit */
 
-	int incoming_reliable_sequence;             /* single bit, maintained local */
+  int incoming_reliable_sequence; /* single bit, maintained local */
 
-	int outgoing_sequence;
-	int reliable_sequence;                  /* single bit */
-	int last_reliable_sequence;             /* sequence number of last send */
+  int outgoing_sequence;
+  int reliable_sequence;      /* single bit */
+  int last_reliable_sequence; /* sequence number of last send */
 
-	/* reliable staging and holding areas */
-	sizebuf_t message;          /* writing buffer to send to server */
-	byte message_buf[MAX_MSGLEN - 16];          /* leave space for header */
+  /* reliable staging and holding areas */
+  sizebuf_t message;                 /* writing buffer to send to server */
+  byte message_buf[MAX_MSGLEN - 16]; /* leave space for header */
 
-	/* message is copied to this buffer when it is first transfered */
-	int reliable_length;
-	byte reliable_buf[MAX_MSGLEN - 16];         /* unacked reliable message */
+  /* message is copied to this buffer when it is first transfered */
+  int reliable_length;
+  byte reliable_buf[MAX_MSGLEN - 16]; /* unacked reliable message */
 } netchan_t;
 
 extern netadr_t net_from;
@@ -616,7 +614,7 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 #include "files.h"
 
 cmodel_t *CM_LoadMap(char *name, qboolean clientload, unsigned *checksum);
-cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
+cmodel_t *CM_InlineModel(const char *name); /* *1, *2, etc */
 
 int CM_NumClusters(void);
 int CM_NumInlineModels(void);
@@ -627,14 +625,14 @@ int CM_HeadnodeForBox(vec3_t mins, vec3_t maxs);
 
 /* returns an ORed contents mask */
 int CM_PointContents(vec3_t p, int headnode);
-int CM_TransformedPointContents(vec3_t p, int headnode,
-		vec3_t origin, vec3_t angles);
+int CM_TransformedPointContents(vec3_t p, int headnode, vec3_t origin,
+                                vec3_t angles);
 
-trace_t CM_BoxTrace(vec3_t start, vec3_t end, vec3_t mins,
-		vec3_t maxs, int headnode, int brushmask);
-trace_t CM_TransformedBoxTrace(vec3_t start, vec3_t end,
-		vec3_t mins, vec3_t maxs, int headnode,
-		int brushmask, vec3_t origin, vec3_t angles);
+trace_t CM_BoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
+                    int headnode, int brushmask);
+trace_t CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins,
+                               vec3_t maxs, int headnode, int brushmask,
+                               vec3_t origin, vec3_t angles);
 
 byte *CM_ClusterPVS(int cluster);
 byte *CM_ClusterPHS(int cluster);
@@ -643,8 +641,8 @@ int CM_PointLeafnum(vec3_t p);
 
 /* call with topnode set to the headnode, returns with topnode */
 /* set to the first node that splits the box */
-int CM_BoxLeafnums(vec3_t mins, vec3_t maxs, int *list,
-		int listsize, int *topnode);
+int CM_BoxLeafnums(vec3_t mins, vec3_t maxs, int *list, int listsize,
+                   int *topnode);
 
 int CM_LeafContents(int leafnum);
 int CM_LeafCluster(int leafnum);
@@ -670,25 +668,14 @@ void Pmove(pmove_t *pmove);
 
 typedef int fileHandle_t;
 
-typedef enum
-{
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND
-} fsMode_t;
+typedef enum { FS_READ, FS_WRITE, FS_APPEND } fsMode_t;
 
-typedef enum
-{
-	FS_SEEK_CUR,
-	FS_SEEK_SET,
-	FS_SEEK_END
-} fsOrigin_t;
+typedef enum { FS_SEEK_CUR, FS_SEEK_SET, FS_SEEK_END } fsOrigin_t;
 
-typedef enum
-{
-	FS_SEARCH_PATH_EXTENSION,
-	FS_SEARCH_BY_FILTER,
-	FS_SEARCH_FULL_PATH
+typedef enum {
+  FS_SEARCH_PATH_EXTENSION,
+  FS_SEARCH_BY_FILTER,
+  FS_SEARCH_FULL_PATH
 } fsSearchType_t;
 
 void FS_DPrintf(const char *format, ...);
@@ -697,14 +684,14 @@ void FS_FCloseFile(fileHandle_t f);
 int FS_Read(void *buffer, int size, fileHandle_t f);
 int FS_FRead(void *buffer, int size, int count, fileHandle_t f);
 
-// returns the filename used to open f, but (if opened from pack) in correct case
-// returns NULL if f is no valid handle
-const char* FS_GetFilenameForHandle(fileHandle_t f);
+// returns the filename used to open f, but (if opened from pack) in correct
+// case returns NULL if f is no valid handle
+const char *FS_GetFilenameForHandle(fileHandle_t f);
 
-char **FS_ListFiles(const char *findname, int *numfiles,
-		unsigned musthave, unsigned canthave);
-char **FS_ListFiles2(const char *findname, int *numfiles,
-		unsigned musthave, unsigned canthave);
+char **FS_ListFiles(const char *findname, int *numfiles, unsigned musthave,
+                    unsigned canthave);
+char **FS_ListFiles2(const char *findname, int *numfiles, unsigned musthave,
+                     unsigned canthave);
 void FS_FreeList(char **list, int nfiles);
 
 void FS_InitFilesystem(void);
@@ -715,7 +702,7 @@ char *FS_NextPath(const char *prevpath);
 int FS_LoadFile(const char *path, void **buffer);
 qboolean FS_FileInGamedir(const char *file);
 qboolean FS_AddPAKFromGamedir(const char *pak);
-const char* FS_GetNextRawPath(const char* lastRawPath);
+const char *FS_GetNextRawPath(const char *lastRawPath);
 char **FS_ListMods(int *nummods);
 
 /* a null buffer will just return the file length without loading */
@@ -728,24 +715,28 @@ void FS_CreatePath(char *path);
 
 /* MISC */
 
-#define ERR_FATAL 0         /* exit the entire game with a popup window */
-#define ERR_DROP 1          /* print to console and disconnect from game */
-#define ERR_QUIT 2          /* not an error, just a normal exit */
+#define ERR_FATAL 0 /* exit the entire game with a popup window */
+#define ERR_DROP 1  /* print to console and disconnect from game */
+#define ERR_QUIT 2  /* not an error, just a normal exit */
 
-#define EXEC_NOW 0          /* don't return until completed */
-#define EXEC_INSERT 1       /* insert at current position, but don't run yet */
-#define EXEC_APPEND 2       /* add to end of the command buffer */
+#define EXEC_NOW 0    /* don't return until completed */
+#define EXEC_INSERT 1 /* insert at current position, but don't run yet */
+#define EXEC_APPEND 2 /* add to end of the command buffer */
 
 #define PRINT_ALL 0
-#define PRINT_DEVELOPER 1   /* only print when "developer 1" */
+#define PRINT_DEVELOPER 1 /* only print when "developer 1" */
 
-void Com_BeginRedirect(int target, char *buffer, int buffersize, void (*flush)(int, char *));
+void Com_BeginRedirect(int target, char *buffer, int buffersize,
+                       void (*flush)(int, char *));
 void Com_EndRedirect(void);
 void Com_Printf(const char *fmt, ...) PRINTF_ATTR(1, 2);
 void Com_DPrintf(const char *fmt, ...) PRINTF_ATTR(1, 2);
-void Com_VPrintf(int print_level, const char *fmt, va_list argptr); /* print_level is PRINT_ALL or PRINT_DEVELOPER */
+void Com_VPrintf(
+    int print_level, const char *fmt,
+    va_list argptr); /* print_level is PRINT_ALL or PRINT_DEVELOPER */
 void Com_MDPrintf(const char *fmt, ...) PRINTF_ATTR(1, 2);
-YQ2_ATTR_NORETURN_FUNCPTR void Com_Error(int code, const char *fmt, ...) PRINTF_ATTR(2, 3);
+YQ2_ATTR_NORETURN_FUNCPTR void Com_Error(int code, const char *fmt, ...)
+    PRINTF_ATTR(2, 3);
 YQ2_ATTR_NORETURN void Com_Quit(void);
 
 /* Ugly work around for unsupported
@@ -760,12 +751,15 @@ YQ2_ATTR_NORETURN void Com_Quit(void);
 
 // terminate yq2 (with Com_Error()) if VAR is NULL (after malloc() or similar)
 // and print message about it
-#define YQ2_COM_CHECK_OOM(VAR, ALLOC_FN_NAME, ALLOC_SIZE) \
-	if(VAR == NULL) { \
-		Com_Error(ERR_FATAL, "%s for " YQ2_COM_PRIdS " bytes failed in %s() (%s == NULL)! Out of Memory?!\n", \
-		                     ALLOC_FN_NAME, (size_t)ALLOC_SIZE, __func__, #VAR); }
+#define YQ2_COM_CHECK_OOM(VAR, ALLOC_FN_NAME, ALLOC_SIZE)                      \
+  if (VAR == NULL) {                                                           \
+    Com_Error(ERR_FATAL,                                                       \
+              "%s for " YQ2_COM_PRIdS                                          \
+              " bytes failed in %s() (%s == NULL)! Out of Memory?!\n",         \
+              ALLOC_FN_NAME, (size_t)ALLOC_SIZE, __func__, #VAR);              \
+  }
 
-int Com_ServerState(void);              /* this should have just been a cvar... */
+int Com_ServerState(void); /* this should have just been a cvar... */
 void Com_SetServerState(int state);
 
 unsigned Com_BlockChecksum(void *buffer, int length);
@@ -803,13 +797,13 @@ extern int time_before_ref;
 extern int time_after_ref;
 
 void Z_Free(void *ptr);
-void *Z_Malloc(int size);           /* returns 0 filled memory */
+void *Z_Malloc(int size); /* returns 0 filled memory */
 void *Z_TagMalloc(int size, int tag);
 void Z_FreeTags(int tag);
 
 void Qcommon_Init(int argc, char **argv);
 void Qcommon_ExecConfigs(qboolean addEarlyCmds);
-const char* Qcommon_GetInitialGame(void);
+const char *Qcommon_GetInitialGame(void);
 void Qcommon_Shutdown(void);
 
 #define NUMVERTEXNORMALS 162
@@ -823,7 +817,8 @@ void SCR_DebugGraph(float value, int color);
 void CL_Init(void);
 void CL_Drop(void);
 void CL_Shutdown(void);
-void CL_Frame(int packetdelta, int renderdelta, int timedelta, qboolean packetframe, qboolean renderframe);
+void CL_Frame(int packetdelta, int renderdelta, int timedelta,
+              qboolean packetframe, qboolean renderframe);
 void Con_Print(char *text);
 void SCR_BeginLoadingPlaque(void);
 
