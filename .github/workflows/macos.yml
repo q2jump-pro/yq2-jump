@@ -28,6 +28,8 @@ jobs:
         brew install sdl2 openal-soft make
     - name: Check out repository code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: Build
       run: |
         # Public runners come with 3 CPUs.
@@ -35,26 +37,82 @@ jobs:
     - name: Create testbuild package
       run: |
         # Create release directory tree
-        mkdir -p publish/quake2-macos-${{github.sha}}/misc/docs
+        mkdir -p publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs
         # Copy release assets
-        cp -r release/* publish/quake2-macos-${{github.sha}}/
+        cp -r release/* publish/yq2jump-darwin-arm64-${{github.sha}}/
         # Copy misc assets
-        cp -r stuff/yq2.cfg publish/quake2-macos-${{github.sha}}/misc/yq2.cfg
-        cp -r stuff/mapfixes publish/quake2-macos-${{github.sha}}/misc
-        cp LICENSE publish/quake2-macos-${{github.sha}}/misc/docs/LICENSE.txt
-        cp README.md publish/quake2-macos-${{github.sha}}/misc/docs/README.txt
-        cp doc/010_index.md publish/quake2-macos-${{github.sha}}/misc/docs/010_index.txt
-        cp doc/020_installation.md publish/quake2-macos-${{github.sha}}/misc/docs/020_installation.txt
-        cp doc/030_configuration.md publish/quake2-macos-${{github.sha}}/misc/docs/030_configuration.txt
-        cp doc/040_cvarlist.md publish/quake2-macos-${{github.sha}}/misc/docs/040_cvarlist.txt
-        cp doc/050_commands.md publish/quake2-macos-${{github.sha}}/misc/docs/050_commands.txt
-        cp doc/060_multiplayer.md publish/quake2-macos-${{github.sha}}/misc/docs/060_multiplayer.txt
-        cp doc/070_packaging.md publish/quake2-macos-${{github.sha}}/misc/docs/070_packaging.txt
-        cp doc/080_contributing.md publish/quake2-macos-${{github.sha}}/misc/docs/080_contributing.txt
-        cp doc/090_filelists.md publish/quake2-macos-${{github.sha}}/misc/docs/090_filelists.md
+        cp -r stuff/yq2.cfg publish/yq2jump-darwin-arm64-${{github.sha}}/misc/yq2.cfg
+        cp -r stuff/mapfixes publish/yq2jump-darwin-arm64-${{github.sha}}/misc
+        cp LICENSE publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/LICENSE.txt
+        cp README.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/README.txt
+        cp doc/010_index.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/010_index.txt
+        cp doc/020_installation.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/020_installation.txt
+        cp doc/030_configuration.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/030_configuration.txt
+        cp doc/040_cvarlist.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/040_cvarlist.txt
+        cp doc/050_commands.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/050_commands.txt
+        cp doc/060_multiplayer.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/060_multiplayer.txt
+        cp doc/070_packaging.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/070_packaging.txt
+        cp doc/080_contributing.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/080_contributing.txt
+        cp doc/090_filelists.md publish/yq2jump-darwin-arm64-${{github.sha}}/misc/docs/090_filelists.md
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4
       with:
-        name: quake2-macos-${{github.sha}}
+        name: yq2jump-darwin-arm64-${{github.sha}}
+        path: publish/
+        if-no-files-found: error
+
+  build_macos_amd64:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: macos
+    steps:
+    - name: Install x86_64 Homebrew
+      run: |
+        arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    - name: Install dependencies
+      run: |
+        arch -x86_64 /usr/local/bin/brew install --overwrite python@3.13
+        arch -x86_64 /usr/local/bin/brew install meson ninja sdl2 libpng jpeg-turbo zlib openal-soft pkg-config cmake make
+
+    - name: Install build dependencies
+      run: |
+        brew update
+        brew install sdl2 openal-soft make
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Build
+      run: |
+        # Public runners come with 3 CPUs.
+        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/Cellar/openal-soft/1.24.0/lib/pkgconfig"
+        arch -x86_64 /usr/local/bin/gmake -j3
+    - name: Create testbuild package
+      run: |
+        # Create release directory tree
+        mkdir -p publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs
+        # Copy release assets
+        cp -r release/* publish/yq2jump-darwin-amd64-${{github.sha}}/
+        # Copy misc assets
+        cp -r stuff/yq2.cfg publish/yq2jump-darwin-amd64-${{github.sha}}/misc/yq2.cfg
+        cp -r stuff/mapfixes publish/yq2jump-darwin-amd64-${{github.sha}}/misc
+        cp LICENSE publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/LICENSE.txt
+        cp README.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/README.txt
+        cp doc/010_index.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/010_index.txt
+        cp doc/020_installation.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/020_installation.txt
+        cp doc/030_configuration.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/030_configuration.txt
+        cp doc/040_cvarlist.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/040_cvarlist.txt
+        cp doc/050_commands.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/050_commands.txt
+        cp doc/060_multiplayer.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/060_multiplayer.txt
+        cp doc/070_packaging.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/070_packaging.txt
+        cp doc/080_contributing.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/080_contributing.txt
+        cp doc/090_filelists.md publish/yq2jump-darwin-amd64-${{github.sha}}/misc/docs/090_filelists.md
+    - name: Upload testbuild package
+      uses: actions/upload-artifact@v4
+      with:
+        name: yq2jump-darwin-amd64-${{github.sha}}
         path: publish/
         if-no-files-found: error
